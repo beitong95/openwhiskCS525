@@ -265,6 +265,11 @@ class ShardingContainerPoolBalancer(
     val chosen = if (invokersToUse.nonEmpty) {
       val hash = ShardingContainerPoolBalancer.generateHash(msg.user.namespace.name, action.fullyQualifiedName(false))
       val homeInvoker = hash % invokersToUse.size
+      
+      logging.info(
+          this,
+          s"homeInvoker beitongtian ${homeInvoker}, two parameters to get the hash ${msg.user.namespace.name} and ${action.fullyQualifiedName(false)}")// beitongtian add log 03212021    
+      
       val stepSize = stepSizes(hash % stepSizes.size)
       val invoker: Option[(InvokerInstanceId, Boolean)] = ShardingContainerPoolBalancer.schedule(
         action.limits.concurrency.maxConcurrent,
@@ -274,6 +279,11 @@ class ShardingContainerPoolBalancer(
         action.limits.memory.megabytes,
         homeInvoker,
         stepSize)
+
+      logging.info(
+          this,
+          s"invokerinstanceid beitongtian ${invoker.getOrElse((0,true))._1}")// beitongtian add log 03212021
+
       invoker.foreach {
         case (_, true) =>
           val metric =
@@ -298,7 +308,7 @@ class ShardingContainerPoolBalancer(
         val timeLimitInfo = if (timeLimit == TimeLimit()) { "std" } else { "non-std" }
         logging.info(
           this,
-          s"scheduled activation ${msg.activationId}, action '${msg.action.asString}' ($actionType), ns '${msg.user.namespace.name.asString}', mem limit ${memoryLimit.megabytes} MB (${memoryLimitInfo}), time limit ${timeLimit.duration.toMillis} ms (${timeLimitInfo}) to ${invoker}")
+          s"scheduled activation ${msg.activationId}, action '${msg.action.asString}' ($actionType), ns '${msg.user.namespace.name.asString}', mem limit ${memoryLimit.megabytes} MB (${memoryLimitInfo}), time limit ${timeLimit.duration.toMillis} ms (${timeLimitInfo}) to ${invoker} intotal ${invokersToUse.size}")// beitongtian modify log 03212021
         val activationResult = setupActivation(msg, action, invoker)
         sendActivationToInvoker(messageProducer, msg, invoker).map(_ => activationResult)
       }

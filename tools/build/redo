@@ -394,6 +394,12 @@ def doOne(component, args, props):
     print(bold(component['description']))
 
     extraArgs = '' if args.extraArgs is None or [] else ' '.join(map(str, args.extraArgs))
+    # build/deploy controller
+    # /home/tbt/openwhisk/tools/build/../..//gradlew core:controller:distDocker  --parallel 
+    # ansible-playbook -i environments/local controller.yml
+    #print(gradle.execcmd(props, gradle.tasks[0], extraArgs))
+    #print(playbook.execcmd(props, extraAnsibleVars = args.extraAnsibleVars))
+    #sys.exit(1)
 
     if args.build and gradle is not None:
         cmd = gradle.execcmd(props, gradle.tasks[0], extraArgs)
